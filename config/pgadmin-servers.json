@@ -1,0 +1,13 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "PostgreSQL Drupal",
+      "Group": "Practica 1",
+      "Host": "server-postgres",
+      "Port": 5432,
+      "MaintenanceDB": "db_drupal",
+      "Username": "user_drupal",
+      "SSLMode": "prefer"
+    }
+  }
+}
