@@ -16,22 +16,23 @@ docker run -d --name <nombre contenedor> --mount type=bind,source=<ruta carpeta 
 
 ### Crear un contenedor con la imagen nginx:alpine, mapear todos por puertos, para la ruta carpeta host colocar el directorio en donde se encuentra la carpeta html en tu computador y para la ruta carpeta contenedor: /usr/share/nginx/html (esta ruta se obtiene al revisar la documentación de la imagen)
 ![Volúmenes](volumen-host.PNG)
-# COMPLETAR CON EL COMANDO
+docker run -d --name cp1 -v "C:\Users\USER\Desktop\Practicas-Docker\practica1\nginx\html:/usr/share/nginx/html" -p 8080:80 nginx:alpine
 
 ### ¿Qué sucede al ingresar al servidor de nginx?
-# COMPLETAR CON LA RESPUESTA A LA PREGUNTA
+Nos aparece una pantalla con el error 403, junto con la versión de la aplicación nginx/1.31.7.
 
 ### ¿Qué pasa con el archivo index.html del contenedor?
-# COMPLETAR CON LA RESPUESTA A LA PREGUNTA
+El index.html original de la imagen quedó oculto por el bind mount. Al montar nuestra carpeta html sobre /usr/share/nginx/html, Nginx muestra los archivos de esa carpeta del host. El archivo original no se borra de la imagen.
 
 ### Ir a https://html5up.net/ y descargar un template gratuito, descomprirlo dentro de tu computador en la carpeta html
 ### ¿Qué sucede al ingresar al servidor de nginx?
-# COMPLETAR CON LA RESPUESTA A LA PREGUNTA
+Ahora carga el index.html que incluía el paquete descargado.
 
 ### Eliminar el contenedor
-# COMPLETAR CON EL COMANDO
+docker stop cp1
+docker rm cp1
 
 ### ¿Qué sucede al crear nuevamente un contenedor montado al directorio definidos anteriormente?
-# COMPLETAR CON LA RESPUESTA A LA PREGUNTA
+Ahora directamente se crea y cargan los contenidos del paquete descargado ya que se encuentran listos en la carpeta que nginx como servicio buscará para cargar.
 
 
