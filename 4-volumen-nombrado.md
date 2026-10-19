@@ -26,15 +26,15 @@ Cuando creas un volumen nombrado, Docker asigna un punto de montaje específico 
 - _data: Es el subdirectorio dentro de vol-postgres/ donde se almacenan los datos reales del volumen. El nombre _data es una convención utilizada por Docker para indicar el directorio donde se encuentran los datos del volumen.
 
 ### ¿Cómo acceder a ese Mountpoint?
-`\\wsl$` permite ver archivos de las distribuciones Linux desde el Explorador de Windows. La ruta `\\wsl.localhost\docker-desktop-data\data\docker\volumes` depende de la versión y de la instalación de Docker Desktop; no existe en esta instalación.
+`\\wsl$` permite ver los archivos de Linux desde el Explorador de Windows. La ruta `\\wsl.localhost\docker-desktop-data\data\docker\volumes` depende de cómo se instaló Docker Desktop. En esta PC esa ruta no existe.
 
-La ruta del volumen se puede consultar así:
+Para ver la ruta del volumen se usa este comando
 
 ```powershell
 docker volume inspect vol-postgres --format '{{.Mountpoint}}'
 ```
 
-Resultado: `/var/lib/docker/volumes/vol-postgres/_data`. Es una ruta de la máquina Linux de Docker. Para listar el contenido sin modificarlo:
+La ruta que apareció fue `/var/lib/docker/volumes/vol-postgres/_data`. Está dentro de la máquina Linux de Docker. Este otro comando permite ver sus archivos sin cambiarlos
 
 ```powershell
 docker run --rm --mount type=volume,source=vol-postgres,target=/datos,readonly nginx:alpine ls -la /datos
@@ -63,16 +63,16 @@ docker run -d --name server-postgres --mount type=volume,source=vol-postgres,tar
 ```
 _No es necesario exponer el puerto, debido a que nos vamos a conectar desde la misma red de docker_
 
-Se usó PostgreSQL 18.6. Desde PostgreSQL 18, la imagen oficial monta el volumen en `/var/lib/postgresql`. Drupal también necesita la extensión `pg_trgm`:
+Se usó PostgreSQL 18.6. Desde la versión 18 el volumen se monta en `/var/lib/postgresql`. Para Drupal también hace falta activar `pg_trgm`
 
 ```powershell
 docker exec server-postgres pg_isready -U user_drupal -d db_drupal
 docker exec server-postgres psql -U user_drupal -d db_drupal -c 'CREATE EXTENSION IF NOT EXISTS pg_trgm;'
 ```
 
-Antes del comando de `psql`, hay que esperar a que `pg_isready` indique que acepta conexiones.
+Antes de ejecutar `psql` hay que esperar a que `pg_isready` diga que ya acepta conexiones.
 
-Referencia: [imagen oficial de PostgreSQL](https://hub.docker.com/_/postgres).
+La ruta se puede revisar en la [imagen oficial de PostgreSQL](https://hub.docker.com/_/postgres).
 
 ### Crear un cliente postgres vinculado a la red drupal a partir de la imagen dpage/pgadmin4, completar el correo
 ```
@@ -80,11 +80,11 @@ docker volume create vol-pgadmin
 docker run -d --name client-postgres -p 9600:80 -e PGADMIN_DEFAULT_PASSWORD=54321 -e PGADMIN_DEFAULT_EMAIL=bryan@example.com --mount type=volume,source=vol-pgadmin,target=/var/lib/pgadmin --mount "type=bind,source=C:\Users\USER\Desktop\Practicas-Docker\practica1\config\pgadmin-servers.json,target=/pgadmin4/servers.json,readonly" --network net-drupal dpage/pgadmin4:latest
 ```
 
-pgAdmin queda en http://localhost:9600/. Se usó 9600 porque WordPress ya ocupa el 9500. El archivo [pgadmin-servers.json](config/pgadmin-servers.json) importa la conexión sin guardar la contraseña de PostgreSQL.
+pgAdmin quedó en http://localhost:9600/. Se usó ese puerto porque WordPress ya ocupa el 9500. El archivo [pgadmin-servers.json](config/pgadmin-servers.json) carga los datos de conexión sin guardar la contraseña de PostgreSQL.
 
 ### Usar el cliente postgres para conectarse al servidor postgres, para la conexión usar el nombre del servidor en lugar de la dirección IP.
 
-En pgAdmin, abrir `Practica 1 > PostgreSQL Drupal`. La conexión usa estos valores:
+En pgAdmin se abre `Practica 1 > PostgreSQL Drupal` con estos datos
 
 | Campo | Valor |
 | --- | --- |
@@ -94,7 +94,7 @@ En pgAdmin, abrir `Practica 1 > PostgreSQL Drupal`. La conexión usa estos valor
 | Usuario | `user_drupal` |
 | Contraseña de la base de práctica | `12345` |
 
-La conexión funcionó y mostró el panel del servidor.
+La conexión funcionó y apareció el panel del servidor.
 
 ![pgAdmin conectado a PostgreSQL](capturas/pgadmin-conectado.png)
 
@@ -118,7 +118,7 @@ Se abrió http://localhost:9700/, se eligió el perfil Standard y PostgreSQL com
 
 ![Paso 4: host server-postgres y puerto 5432](capturas/drupal-paso4-conexion.png)
 
-La instalación de Drupal 11.4.10 terminó y el sitio quedó con el nombre «Práctica 1 de Bryan Ayala».
+Drupal 11.4.10 terminó de instalarse y el sitio quedó con el nombre Práctica 1 de Bryan Ayala.
 
 ![Drupal instalado](capturas/drupal-instalado.png)
 
@@ -150,9 +150,9 @@ docker volume rm <nombre volumen>
 ```
 **Considerar**
 Datos Persistentes: Asegúrate de que el volumen no contiene datos críticos antes de eliminarlo, ya que esta operación no se puede deshacer.
-Contenedores asociados: Docker impide borrar un volumen si algún contenedor lo referencia, aunque esté detenido. Primero hay que eliminar esos contenedores o recrearlos con otro montaje.
+Docker no deja borrar un volumen si un contenedor todavía lo usa, aunque esté detenido. Primero hay que borrar ese contenedor o recrearlo con otro montaje.
 
-Se comprobó con un volumen desechable:
+Esto se probó con un volumen que se podía borrar
 
 ```powershell
 docker volume create vol-prueba-borrar
@@ -162,4 +162,4 @@ docker rm prueba-volumen
 docker volume rm vol-prueba-borrar
 ```
 
-El primer intento de borrar el volumen devolvió `volume is in use`, aunque el contenedor había terminado. Después de eliminar `prueba-volumen`, se pudo borrar el volumen. Los volúmenes de PostgreSQL y Drupal se conservaron.
+Al intentar borrar el volumen apareció `volume is in use`, aunque el contenedor ya había terminado. Después de borrar `prueba-volumen` sí se pudo eliminar. Los volúmenes de PostgreSQL y Drupal se dejaron intactos.

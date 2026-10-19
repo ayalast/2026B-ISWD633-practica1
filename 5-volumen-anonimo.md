@@ -1,5 +1,5 @@
 ## VOLUMEN ANÓNIMO
-Un volumen anónimo es un volumen gestionado por Docker que se crea sin que le demos un nombre. Docker le asigna un identificador largo. Puede conservar datos después de eliminar el contenedor; no se borra automáticamente por ser anónimo.
+Un volumen anónimo se crea sin que le demos un nombre y Docker le pone un identificador largo. Sus datos pueden seguir ahí después de borrar el contenedor. No se borra solo por ser anónimo.
 **Considerar**
 Conviene guardar su identificador si se quiere volver a usar. El identificador se consulta con `docker inspect`.
 
@@ -22,7 +22,7 @@ docker stop anon-nginx
 docker rm anon-nginx
 ```
 
-El volumen generado fue `fcb7a21b4ea264d1d80c030a034069742015c019eafca46e2d74f02922ad0386`. Después de borrar el contenedor, seguía en `docker volume ls`. Se montó en otro contenedor para comprobar el archivo:
+El volumen que se creó fue `fcb7a21b4ea264d1d80c030a034069742015c019eafca46e2d74f02922ad0386`. Después de borrar el contenedor seguía apareciendo en `docker volume ls`. Se usó en otro contenedor para revisar si el archivo seguía ahí
 
 ```powershell
 docker run --rm -v fcb7a21b4ea264d1d80c030a034069742015c019eafca46e2d74f02922ad0386:/datos:ro nginx:alpine cat /datos/prueba.txt
@@ -38,12 +38,12 @@ docker rm -fv anon-nginx-rmv
 ```
 _esta instrucción elimina el volumen si éste es de tipo anónimo_
 
-En esta segunda prueba, el volumen anónimo desapareció junto con el contenedor. La opción `-v` de `docker rm` no elimina volúmenes nombrados.
+En esta segunda prueba sí se borró el volumen junto con el contenedor. La opción `-v` de `docker rm` no borra los volúmenes nombrados.
 
 # Eliminar todos los volúmenes anónimos (dangling volumes) no utilizados
 Un volumen sin usar no está referenciado por ningún contenedor, ni siquiera uno detenido. Puede quedar así al borrar un contenedor sin borrar su volumen.
 
-Antes de limpiar se revisó la lista:
+Antes de limpiar se revisó qué volúmenes estaban sin usar
 
 ```powershell
 docker volume ls --filter dangling=true
@@ -54,4 +54,4 @@ Solo aparecía el volumen anónimo de la primera prueba. En esta versión de Doc
 docker volume prune
 ```
 
-La limpieza eliminó el volumen de la primera prueba y liberó 1.418 kB. Los seis volúmenes nombrados de PostgreSQL, pgAdmin y Drupal permanecieron.
+La limpieza borró el volumen de la primera prueba y liberó 1.418 kB. Los seis volúmenes nombrados de PostgreSQL, pgAdmin y Drupal siguieron ahí.

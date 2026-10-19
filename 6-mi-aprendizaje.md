@@ -1,9 +1,9 @@
 # Mi aprendizaje
 
-Al principio no tenía claro qué pasaba con la información al borrar un contenedor. En WordPress pude comprobarlo: eliminé el contenedor, el sitio dejó de cargar y los archivos seguían en la carpeta `www`. Al recrearlo con el mismo montaje y la misma base de datos, se conservaron la entrada y el color de fondo. No fue necesario instalar WordPress otra vez.
+Al principio no entendía bien qué pasaba con la información al borrar un contenedor. Cuando borré el de WordPress el sitio dejó de cargar, pero los archivos seguían en la carpeta `www`. Al crearlo otra vez con el mismo montaje y la misma base de datos seguían la entrada y el color de fondo. No me pidió instalar WordPress de nuevo.
 
-Un bind mount permite trabajar con una carpeta concreta de mi PC. Un volumen nombrado deja que Docker gestione el almacenamiento. En ambos casos, el contenedor se puede reemplazar si se conservan los datos y se vuelve a configurar el montaje. Un volumen anónimo también puede persistir, pero hay que conocer su identificador para reutilizarlo.
+Con un bind mount puedo usar una carpeta de mi PC. En un volumen nombrado Docker se encarga de guardar los archivos. En los dos casos puedo reemplazar el contenedor si conservo los datos y uso el mismo montaje. Un volumen anónimo tambien puede conservar los datos, pero necesito su identificador para volver a usarlo.
 
-Las redes `net-wp` y `net-drupal` permiten conectar los servicios usando el nombre del contenedor. Por eso WordPress usa `cp3` como host de MySQL y Drupal usa `server-postgres`. Los puertos publicados, como `9500:80`, permiten entrar desde el navegador de Windows; la comunicación interna usa los puertos del contenedor.
+Las redes `net-wp` y `net-drupal` permiten que los servicios se encuentren por el nombre del contenedor. Por eso WordPress se conecta a `cp3` y Drupal a `server-postgres`. Para entrar desde el navegador de Windows se publica un puerto como `9500:80`. Entre los contenedores se usan los puertos internos.
 
-En la configuración de Drupal se ajustó el montaje de PostgreSQL 18 a `/var/lib/postgresql` y se habilitó `pg_trgm`. pgAdmin quedó en el puerto 9600 porque WordPress ya usaba el 9500. Para revisar los montajes se usó `docker volume inspect`. También se comprobó que detener un contenedor no basta para borrar un volumen que todavía está asociado a él.
+En Drupal hubo que usar `/var/lib/postgresql` para PostgreSQL 18 y activar `pg_trgm`. pgAdmin quedó en el puerto 9600 porque el 9500 ya estaba ocupado por WordPress. Con `docker volume inspect` se revisó dónde se guardaban los archivos. También se vio que detener un contenedor no basta para borrar el volumen si todavía está asociado a él.
